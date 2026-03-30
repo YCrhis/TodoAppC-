@@ -74,6 +74,3 @@ https://localhost:5001
 * 🌙 Dark mode
 
 <img width="1880" height="869" alt="image" src="https://github.com/user-attachments/assets/c78b2a61-8f2e-4b88-a4dc-83ab119dc7b4" />
-
-
-Developed by *[Your Name]*
