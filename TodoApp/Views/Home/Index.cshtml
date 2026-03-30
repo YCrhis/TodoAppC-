@@ -1,0 +1,229 @@
+﻿@model TodoFormVM
+
+<style>
+    body {
+        background-color: #f5f7fb;
+    }
+
+    .card-custom {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+    }
+
+    .title-main {
+        color: #374151;
+        letter-spacing: 0.5px;
+    }
+
+    .section-title {
+        color: #4b5563;
+        font-weight: 600;
+    }
+
+    .btn-soft {
+        background-color: #6366f1;
+        border: none;
+    }
+
+        .btn-soft:hover {
+            background-color: #4f46e5;
+        }
+
+    .input-soft {
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .badge-soft {
+        font-size: 0.75rem;
+        padding: 6px 10px;
+        border-radius: 999px;
+    }
+</style>
+
+
+<div class="container py-5">
+
+    <h1 class="text-center fw-bold mb-5 title-main">BackStasks</h1>
+
+    <div class="row g-4">
+
+        <!-- LEFT COLUMN -->
+        <div class="col-md-4">
+            <div class="card-custom p-4 shadow-sm">
+
+                <h5 class="section-title mb-3">Categories</h5>
+
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <div class="d-flex align-items-center px-3 py-1 text-white rounded-pill"
+                             style="background:@category.Color">
+
+                            <span class="me-2">@category.Name</span>
+
+                            <form asp-action="DeleteCategory" method="post">
+                                <input type="hidden" name="id" value="@category.CategoryId" />
+
+                                <button type="button"
+                                        class="btn btn-sm text-white p-0"
+                                        onclick="deleteCategory(this)"
+                                        data-id="@category.CategoryId"
+                                        data-name="@category.Name">
+                                    ✕
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+
+                <form asp-action="AddCategory" method="post">
+                    <input name="Name"
+                           class="form-control input-soft mb-2"
+                           placeholder="Category name" />
+
+                    <input type="color"
+                           name="Color"
+                           class="form-control form-control-color mb-3" />
+
+                    <button class="btn btn-soft w-100 text-white">
+                        Add Category
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-md-8">
+
+            <!-- ADD TASK -->
+            <div class="card-custom p-4 shadow-sm mb-4">
+                <h5 class="section-title mb-3">Add Task</h5>
+
+                <form asp-action="AddTodo" method="post">
+                    <input name="Name"
+                           class="form-control input-soft mb-3"
+                           placeholder="Task name" />
+
+                    <textarea name="Description"
+                              class="form-control input-soft mb-3"
+                              placeholder="Task description"></textarea>
+
+                    <select name="CategoryId"
+                            class="form-select input-soft mb-3">
+                        <option disabled selected>Select category</option>
+                        @foreach (var item in Model.CategoriesOption)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox"
+                               name="IsComplete"
+                               value="true"
+                               class="form-check-input" />
+                        <label class="form-check-label text-muted">
+                            Completed
+                        </label>
+                    </div>
+
+                    <input type="hidden" name="IsComplete" value="false" />
+
+                    <button class="btn btn-soft w-100 text-white">
+                        Save Task
+                    </button>
+                </form>
+            </div>
+
+
+            <!-- TASKS -->
+            <div class="row g-3">
+                @foreach (var todo in Model.Todos)
+                {
+                    <div class="col-md-6">
+                        <div class="card-custom p-3 shadow-sm h-100 position-relative">
+                            <div class="position-absolute top-0 end-0 m-2 rounded-5 px-3 py-1 fw-semibold d-flex justify-content-center align-items-center text-center"
+                                 style="background: @(todo.IsComplete ? "#B8FFB8" : "#5F9EA0");">
+
+                                <p class="fs-6 mb-0">
+                                    @(todo.IsComplete ? "Finished Task" : "Pending Task")
+                                </p>
+
+                            </div>
+                            <h6 class="fw-bold text-dark">@todo.Name</h6>
+
+                            <p class="text-muted small mb-3">
+                                @todo.Description
+                            </p>
+
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+
+                                <span class="badge badge-soft text-white"
+                                      style="background:@todo?.Category?.Color">
+                                    @todo?.Category?.Name
+                                </span>
+
+                                <div class="d-flex gap-2">
+
+                                    <form asp-action="DeleteTodo" method="post">
+                                        <input type="hidden" name="id" value="@todo?.TodoId" />
+
+                                        <button class="btn btn-sm btn-outline-secondary"
+                                                onclick="deleteTodo(this)"
+                                                data-value-todo="@todo?.TodoId"
+                                                data-name-todo="@todo?.Name">
+                                            🗑
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="EditTodo" method="post">
+                                        <input type="hidden" name="id" value="@todo?.TodoId" />
+
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            ✏
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-warning mt-4 text-center">
+            @TempData["Error"]
+        </div>
+    }
+
+</div>
+
+<script>
+
+    function deleteCategory(button) {
+        const categoryName = button.getAttribute('data-name');
+        const categoryId = button.getAttribute('data-id');
+        if (confirm(`Are you sure you want to delete the category "${categoryName}"?`)) {
+            button.closest('form').submit();
+        }
+    }
+
+    function deleteTodo(button) {
+        const categoryName = button.getAttribute('data-name-todo');
+        const categoryId = button.getAttribute('data-id-todo');
+        if (confirm(`Are you sure you want to delete the category "${categoryName}"?`)) {
+            button.closest('form').submit();
+        }
+    }
+</script>
